@@ -1,0 +1,188 @@
+{
+  "projectTitle": "AI-Based Rockfall Prediction and Alert System for Open-Pit Mines",
+  "version": "1.0",
+  "description": "A comprehensive web application for real-time monitoring, prediction, and alerting of rockfall events in open-pit mines using AI, integrated with a helpful chatbot for user assistance.",
+  "websiteConfig": {
+    "theme": "Industrial & Modern",
+    "primaryColor": "#34495E",
+    "secondaryColor": "#F39C12",
+    "layout": "Sidebar Navigation",
+    "pages": [
+      {
+        "name": "Dashboard",
+        "path": "/",
+        "description": "A real-time overview of the mine's status, featuring key alerts, sensor data, and risk summaries.",
+        "components": [
+          {
+            "type": "AlertPanel",
+            "title": "Active Alerts",
+            "config": {
+              "display": "Highest priority first",
+              "autoRefresh": 30
+            }
+          },
+          {
+            "type": "LiveSensorFeed",
+            "title": "Live Infrared Sensor Data",
+            "config": {
+              "sensors": ["PIT_WALL_SENSOR_01", "NORTH_FACE_SENSOR_02"],
+              "chartType": "line"
+            }
+          },
+          {
+            "type": "RiskMapSnapshot",
+            "title": "Current Risk Overview",
+            "description": "A static image of the main pit with current risk-level overlays.",
+            "link": "/risk-map"
+          },
+          {
+            "type": "SummaryStatistics",
+            "title": "24-Hour Summary",
+            "metrics": ["Alerts Triggered", "Average Risk Level", "Sensor Uptime"]
+          }
+        ]
+      },
+      {
+        "name": "Live Risk Map",
+        "path": "/risk-map",
+        "description": "An interactive 3D map visualizing the Digital Elevation Model (DEM) data with real-time, AI-predicted rockfall risk overlays.",
+        "components": [
+          {
+            "type": "Interactive3DMap",
+            "config": {
+              "demDataSource": "/api/dem-data/main-pit",
+              "riskOverlaySource": "/api/risk-data/live",
+              "controls": ["zoom", "pan", "rotate"],
+              "legend": {
+                "Low Risk": "#2ECC71",
+                "Moderate Risk": "#F1C40F",
+                "High Risk": "#E74C3C",
+                "Critical Risk": "#C0392B"
+              }
+            }
+          },
+          {
+            "type": "LayerToggle",
+            "options": ["Sensor Locations", "Geological Fault Lines", "Exclusion Zones"]
+          }
+        ]
+      },
+      {
+        "name": "Alert History",
+        "path": "/alerts",
+        "description": "A searchable and filterable log of all past rockfall alerts.",
+        "components": [
+          {
+            "type": "DataTable",
+            "dataSource": "/api/alerts/history",
+            "columns": ["Timestamp", "Sensor ID", "Risk Level", "AI Confidence", "Status", "Actions"],
+            "features": ["filterByDate", "sortByRisk", "exportToCSV"]
+          }
+        ]
+      },
+      {
+        "name": "Reports",
+        "path": "/reports",
+        "description": "Generate and download historical reports on system performance and mine safety.",
+        "components": [
+          {
+            "type": "ReportGenerator",
+            "options": {
+              "reportTypes": ["Daily Summary", "Weekly Alert Analysis", "Sensor Performance"],
+              "dateRangeSelector": true,
+              "exportFormats": ["PDF", "CSV"]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "chatbotConfig": {
+    "persona": "Your friendly and knowledgeable mine safety assistant, 'Geo'. ⛏️",
+    "greeting": "Welcome! I'm Geo. How can I help you navigate the rockfall system today? You can ask me to 'show the live map' or 'what does DEM mean?'.",
+    "idlePrompt": "Is there anything else I can help you with?",
+    "capabilities": [
+      "Navigate users to different pages.",
+      "Explain technical terms (e.g., DEM, Infrared Sensor).",
+      "Answer basic questions about system features.",
+      "Execute simple commands like generating a report."
+    ]
+  },
+  "aiPrompts": {
+    "navigation": [
+      {
+        "intent": "goToDashboard",
+        "userPrompts": ["Show me the dashboard", "Go to the main page", "Take me home"],
+        "action": "redirect",
+        "target": "/"
+      },
+      {
+        "intent": "showRiskMap",
+        "userPrompts": [
+          "Show me the live risk map",
+          "I want to see the 3D model",
+          "Where can I see the pit visualization?"
+        ],
+        "action": "redirect",
+        "target": "/risk-map"
+      },
+      {
+        "intent": "viewAlertHistory",
+        "userPrompts": ["Show me past alerts", "I need to see the alert log", "Where are the historical alerts?"],
+        "action": "redirect",
+        "target": "/alerts"
+      }
+    ],
+    "information": [
+      {
+        "intent": "explainDEM",
+        "userPrompts": ["What is a DEM?", "What does DEM stand for?", "Explain Digital Elevation Model"],
+        "response": "A **Digital Elevation Model (DEM)** is a 3D digital representation of a terrain's surface. We use it to map the open-pit mine's structure and analyze slopes for potential rockfall."
+      },
+      {
+        "intent": "explainRiskLevels",
+        "userPrompts": [
+          "What do the colors on the map mean?",
+          "Explain the risk levels",
+          "What is the difference between high and critical risk?"
+        ],
+        "response": "The risk levels are color-coded for quick identification: **Green** is Low Risk, **Yellow** is Moderate, **Orange** is High, and **Red** is Critical. A Critical risk indicates a very high probability of an imminent rockfall."
+      },
+      {
+        "intent": "explainInfraredSensor",
+        "userPrompts": ["How does the sensor work?", "What does the infrared sensor measure?"],
+        "response": "The infrared sensor measures the distance to the rock face. By detecting tiny changes in this distance over time, the AI can identify ground movement that might indicate an unstable area before a rockfall occurs."
+      }
+    ],
+    "actions": [
+      {
+        "intent": "generateDailyReport",
+        "userPrompts": ["Generate a report for today", "Create the daily summary", "I need today's report"],
+        "action": "apiCall",
+        "endpoint": "/api/reports/generate",
+        "payload": {
+          "type": "Daily Summary",
+          "dateRange": "today"
+        },
+        "response": "I've started generating the Daily Summary report for you. It will be available for download in the Reports section shortly."
+      },
+      {
+        "intent": "acknowledgeAlert",
+        "userPrompts": ["Acknowledge the latest alert", "Mark the critical alert as seen"],
+        "action": "apiCall",
+        "endpoint": "/api/alerts/acknowledge",
+        "payload": {
+          "alertId": "latest"
+        },
+        "response": "Acknowledged. The latest critical alert has been marked as seen."
+      }
+    ],
+    "troubleshooting": [
+      {
+        "intent": "noDataOnFeed",
+        "userPrompts": ["Why is the sensor feed empty?", "I don't see any sensor data", "The live data isn't showing"],
+        "response": "If the sensor feed is blank, it could be a connection issue or the sensor might be undergoing maintenance. Please check the system status page or contact a system administrator if the problem persists."
+      }
+    ]
+  }
+}

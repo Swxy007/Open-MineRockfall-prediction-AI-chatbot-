@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="card wide">
+  <h2>Weather and Forecast</h2>
+  <form id="city-form" class="row">
+    <label class="field grow">
+      <span class="sr-only">City</span>
+      <input id="city-input" placeholder="Enter city (e.g., Perth)" />
+    </label>
+    <button class="btn" type="submit">Search</button>
+    <button class="btn secondary" id="btn-locate" type="button">Use My Location</button>
+  </form>
+
+  <div id="weather-result" class="weather-result">
+    <p class="muted">Search a city or use your location to load the current conditions and forecast.</p>
+  </div>
+</section>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/weather.js') }}" defer></script>
+{% endblock %}

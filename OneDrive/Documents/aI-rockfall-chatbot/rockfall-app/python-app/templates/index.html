@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="grid">
+  <div class="card">
+    <h2>System Status</h2>
+    <div class="status-row">
+      <span class="badge" id="status-badge">OK</span>
+      <span class="muted" id="status-updated">Updated: —</span>
+    </div>
+    <ul class="kv">
+      <li><strong>Last Event:</strong> <span id="last-event">None</span></li>
+      <li><strong>Risk Level:</strong> <span id="risk-level">Low</span></li>
+      <li><strong>Active Sensors:</strong> <span id="sensor-count">0</span></li>
+    </ul>
+    <div class="actions">
+      <button id="btn-ack" class="btn">Acknowledge</button>
+      <a class="btn secondary" href="{{ url_for('weather_page') }}">Open Weather</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Controls</h2>
+    <div class="controls">
+      <label class="field">
+        <span>Sampling Rate (Hz)</span>
+        <input type="number" min="1" max="10" step="1" id="sampling" value="2"/>
+      </label>
+      <label class="field">
+        <span>Alert Threshold (mm)</span>
+        <input type="number" min="1" max="50" step="1" id="threshold" value="10"/>
+      </label>
+      <label class="field">
+        <span>Notifications</span>
+        <select id="notify">
+          <option value="all">All</option>
+          <option value="critical">Critical only</option>
+          <option value="none">None</option>
+        </select>
+      </label>
+    </div>
+  </div>
+
+  <div class="card wide">
+    <h2>Live Sensor Feed</h2>
+    <table class="table" id="sensor-table" aria-describedby="sensor-caption">
+      <caption id="sensor-caption" class="sr-only">Simulated sensor displacement values over time</caption>
+      <thead>
+        <tr>
+          <th>Time</th>
+          <th>Sensor</th>
+          <th>Displacement (mm)</th>
+        </tr>
+      </thead>
+      <tbody id="sensor-body"></tbody>
+    </table>
+  </div>
+
+  <div class="card wide">
+    <h2>AI Assistant</h2>
+    <div class="assistant">
+      <div id="chat-log" class="chat-log" aria-live="polite"></div>
+      <div class="chip-row">
+        <button class="chip" data-msg="What is the current rockfall risk?">Risk</button>
+        <button class="chip" data-msg="Show today’s alerts">Alerts</button>
+        <button class="chip" data-msg="How do I interpret sensor data?">Help</button>
+        <button class="chip" data-msg="What areas are most at risk?">Hotspots</button>
+      </div>
+      <form id="chat-form" class="chat-form" autocomplete="off">
+        <input id="chat-input" placeholder="Ask about risk, weather, or data…" aria-label="Your message"/>
+        <button class="btn" type="submit">Send</button>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}
+{% block scripts %}
+<script>
+  // Simple page init for timestamps
+  document.addEventListener('DOMContentLoaded', () => {
+    const el = document.getElementById('status-updated');
+    if (el) el.textContent = 'Updated: ' + new Date().toLocaleString();
+  });
+</script>
+{% endblock %}
